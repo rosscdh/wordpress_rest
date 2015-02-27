@@ -80,7 +80,7 @@ class PostMeta(models.Model):
 
 class Posts(models.Model):
     id = models.BigIntegerField(db_column='ID', primary_key=True)  # Field name made lowercase.
-    post_author = models.ForeignKey('wordpress.Users')
+    post_author = models.ForeignKey('wordpress.Users', db_column='post_author')
     post_date = models.DateTimeField()
     post_date_gmt = models.DateTimeField()
     post_content = models.TextField()
