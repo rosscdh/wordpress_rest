@@ -71,10 +71,10 @@ WSGI_APPLICATION = 'wordpress_rest.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wordpress_dev',
-        'HOST': '127.0.0.1',
-        'USER': 'root',
-        'PASSWORD': '',
+        'NAME': 'wordpress_dev',              # Enter database name
+        'HOST': '127.0.0.1',                  # Enter host
+        'USER': 'root',                       # Enter username
+        'PASSWORD': '',                       # Password
     }
 }
 
