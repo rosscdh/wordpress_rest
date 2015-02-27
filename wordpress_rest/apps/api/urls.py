@@ -19,7 +19,7 @@ router.register(r'options', api_views.OptionsViewset, base_name='options')
 router.register(r'taxonomy', api_views.TermTaxonomyViewset, base_name='taxonomy')
 router.register(r'terms', api_views.TermsViewset, base_name='terms')
 router.register(r'categories', api_views.CategoriesViewset, base_name='categories')
-router.register(r'tags', api_views.CategoriesViewset, base_name='tags')
+router.register(r'tags', api_views.TagsViewset, base_name='tags')
 
 router.register(r'users', api_views.UsersViewset, base_name='users')
 
