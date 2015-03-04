@@ -48,7 +48,20 @@ class PostsSerializer(serializers.ModelSerializer):
         model = wp_models.Posts
 
     def get_meta(self, obj):
-        return PostMetaSerializer(obj.postmeta_set.all(), many=True).data
+        meta = dict()
+        for m in obj.postmeta_set.all():
+            m = PostMetaSerializer(m).data
+
+            if m.get('name') in meta:
+                if type(meta[m.get('name')]) is not list:
+                    tmp_value = meta[m.get('name')]
+                    meta[m.get('name')] = [tmp_value]
+                else:
+                    meta[m.get('name')].append(m.get('value'))
+
+            else:
+                meta[m.get('name')] = m.get('value')
+        return meta
 
 
 class TermRelationshipsSerializer(serializers.ModelSerializer):
