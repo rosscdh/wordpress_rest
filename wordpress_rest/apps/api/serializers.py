@@ -46,6 +46,7 @@ class PostsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = wp_models.Posts
+        queryset = wp_models.Posts.objects.select_related('meta').all()
 
     def get_meta(self, obj):
         meta = dict()
