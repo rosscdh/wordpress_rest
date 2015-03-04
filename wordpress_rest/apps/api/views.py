@@ -55,14 +55,14 @@ class TermsViewset(viewsets.ModelViewSet):
 
 class CategoriesViewset(viewsets.ModelViewSet):
     model = wp_models.Terms
-    serializer_class = api_serializers.TermsSerializer
+    serializer_class = api_serializers.CategoriesSerializer
     queryset = wp_models.Terms.objects.categories()
     filter_fields = ('id', 'name', 'slug')
 
 
 class TagsViewset(viewsets.ModelViewSet):
     model = wp_models.Terms
-    serializer_class = api_serializers.TermsSerializer
+    serializer_class = api_serializers.TagsSerializer
     queryset = wp_models.Terms.objects.tags()
     filter_fields = ('id', 'name', 'slug')
 

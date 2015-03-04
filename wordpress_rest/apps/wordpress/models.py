@@ -122,9 +122,9 @@ class TermTaxonomy(models.Model):
     id = models.AutoField(primary_key=True, db_column='term_taxonomy_id')
     term = models.ForeignKey('wordpress.Terms')
     taxonomy = models.CharField(max_length=32)
-    description = models.TextField()
-    parent = models.BigIntegerField()
-    count = models.BigIntegerField()
+    description = models.TextField(blank=True)
+    parent = models.IntegerField(default=0, db_column='parent')
+    count = models.BigIntegerField(default=0)
 
     class Meta:
         managed = False
@@ -148,7 +148,7 @@ class Terms(models.Model):
     id = models.AutoField(db_column='term_id', primary_key=True)
     name = models.CharField(max_length=200)
     slug = models.CharField(max_length=200)
-    term_group = models.BigIntegerField()
+    term_group = models.BigIntegerField(default=0)
 
     objects = TermsManager()
 
@@ -158,6 +158,11 @@ class Terms(models.Model):
 
     def __unicode__(self):
         return u'%s' % self.name
+
+    @property
+    def parent(self):
+        relation = self.termtaxonomy_set.first()
+        return relation.parent if relation is not None else None
 
 
 class UserMeta(models.Model):

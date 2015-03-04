@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.template.defaultfilters import slugify
+
 from rest_framework import serializers
 
 import wordpress_rest.apps.wordpress.models as wp_models
@@ -45,8 +47,46 @@ class TermTaxonomySerializer(serializers.ModelSerializer):
 
 
 class TermsSerializer(serializers.ModelSerializer):
+    parent = serializers.IntegerField(default=0)
+    slug = serializers.SlugField()
+
     class Meta:
         model = wp_models.Terms
+        fields = ('pk', 'name', 'slug', 'parent')
+
+
+class CategoriesSerializer(TermsSerializer):
+    taxonomy = serializers.SerializerMethodField()
+
+    class Meta(TermsSerializer.Meta):
+        fields = ('pk', 'name', 'slug', 'parent', 'taxonomy')
+
+    def get_taxonomy(self, obj):
+        return 'category'
+
+    def create(self, validated_data):
+        parent = self.data.get('parent', 0)
+        taxonomy = self.data.get('taxonomy', 'category')
+        import pdb;pdb.set_trace()
+        validated_data['slug'] = slugify(validated_data.get('name'))
+
+        term = self.Meta.model.objects.create(**validated_data)
+
+        try:
+            parent = wp_models.TermTaxonomy.objects.get(term=term, taxonomy=taxonomy)
+        except wp_models.TermTaxonomy.DoesNotExist:
+            parent = wp_models.TermTaxonomy.objects.create(term=term, taxonomy=taxonomy)
+        except Exception as e:
+            import pdb;pdb.set_trace()
+
+        return term
+
+
+class TagsSerializer(CategoriesSerializer):
+    class Meta(CategoriesSerializer.Meta): pass
+
+    def get_taxonomy(self, obj):
+        return 'tag'
 
 
 class UserMetaSerializer(serializers.ModelSerializer):

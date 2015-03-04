@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns  # , url
 
 from rest_framework import routers
 
