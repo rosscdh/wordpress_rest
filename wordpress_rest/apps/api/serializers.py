@@ -27,13 +27,28 @@ class OptionsSerializer(serializers.ModelSerializer):
 
 
 class PostMetaSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
     class Meta:
         model = wp_models.PostMeta
+        fields = ('name', 'value')
+
+    def get_name(self, obj):
+        return obj.meta_key
+
+    def get_value(self, obj):
+        return 'test'
 
 
 class PostsSerializer(serializers.ModelSerializer):
+    meta = serializers.SerializerMethodField()
+
     class Meta:
         model = wp_models.Posts
+
+    def get_meta(self, obj):
+        return PostMetaSerializer(obj.postmeta_set.all(), many=True).data
 
 
 class TermRelationshipsSerializer(serializers.ModelSerializer):
