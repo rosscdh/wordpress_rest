@@ -2,6 +2,13 @@
 
 Basic REST api around wordpress database
 
+NOTE
+====
+
+This is still in pre-alpha stages. It does not enforce the WP rules and things (for the sake of speed and accessability).
+
+But it is a fully fledged rest api and I'll be working to make things like creating categories and tags etc simpler. And then creating terms even more simpler (a few tables get updated at the same time).
+
 
 Installation
 ============
