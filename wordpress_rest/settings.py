@@ -117,3 +117,10 @@ REST_FRAMEWORK = {
     ),
     'PAGINATE_BY': 25
 }
+
+
+try:
+    from local_settings import *
+except ImportError:
+    # no local_settings.py found
+    pass

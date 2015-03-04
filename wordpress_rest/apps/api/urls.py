@@ -10,7 +10,13 @@ router = routers.SimpleRouter(trailing_slash=False)
 """
 Generic ViewSets
 """
-router.register(r'posts', api_views.PostsViewset, base_name='posts')
+router.register(r'posts', api_views.AllPostsViewset, base_name='posts')
+router.register(r'published', api_views.PublishedPostsViewset, base_name='posts_published')
+router.register(r'private', api_views.PrivatePostsViewset, base_name='posts_private')
+router.register(r'draft', api_views.DraftPostsViewset, base_name='posts_draft')
+router.register(r'trash', api_views.TrashPostsViewset, base_name='posts_trash')
+router.register(r'auto_draft', api_views.AutoDraftPostsViewset, base_name='posts_auto_draft')
+
 router.register(r'links', api_views.LinksViewset, base_name='links')
 router.register(r'comments', api_views.CommentsViewset, base_name='comments')
 

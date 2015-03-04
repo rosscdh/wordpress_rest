@@ -28,10 +28,33 @@ class OptionsViewset(viewsets.ModelViewSet):
     queryset = wp_models.Options.objects.all()
 
 
-class PostsViewset(viewsets.ModelViewSet):
+#
+# Posts
+#
+class AllPostsViewset(viewsets.ModelViewSet):
     model = wp_models.Posts
     serializer_class = api_serializers.PostsSerializer
     queryset = wp_models.Posts.objects.all()
+
+
+class PublishedPostsViewset(AllPostsViewset):
+    queryset = wp_models.Posts.objects.published()
+
+
+class PrivatePostsViewset(AllPostsViewset):
+    queryset = wp_models.Posts.objects.private()
+
+
+class DraftPostsViewset(AllPostsViewset):
+    queryset = wp_models.Posts.objects.draft()
+
+
+class TrashPostsViewset(AllPostsViewset):
+    queryset = wp_models.Posts.objects.trash()
+
+
+class AutoDraftPostsViewset(AllPostsViewset):
+    queryset = wp_models.Posts.objects.auto_draft()
 
 
 class TermRelationshipsViewset(viewsets.ModelViewSet):

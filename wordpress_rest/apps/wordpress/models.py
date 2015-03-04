@@ -78,6 +78,29 @@ class PostMeta(models.Model):
         db_table = 'wp_postmeta'
 
 
+#
+# Manager
+#
+class PostsManager(models.Manager):
+    def private(self, **kwargs):
+        return self.get_queryset(**kwargs).filter(post_status__in=['private'])
+
+    def published(self, **kwargs):
+        return self.get_queryset(**kwargs).filter(post_status__in=['publish'])
+
+    def draft(self, **kwargs):
+        return self.get_queryset().filter(post_status__in=['draft'])
+
+    def auto_draft(self, **kwargs):
+        return self.get_queryset(**kwargs).filter(post_status__in=['auto-draft'])
+
+    def trash(self, **kwargs):
+        return self.get_queryset(**kwargs).filter(post_status__in=['trash'])
+
+    def inherit(self, **kwargs):
+        return self.get_queryset(**kwargs).filter(post_status__in=['inherit'])
+
+
 class Posts(models.Model):
     id = models.AutoField(db_column='ID', primary_key=True)  # Field name made lowercase.
     post_author = models.ForeignKey('wordpress.Users', db_column='post_author')
@@ -102,6 +125,8 @@ class Posts(models.Model):
     post_type = models.CharField(max_length=20)
     post_mime_type = models.CharField(max_length=100)
     comment_count = models.BigIntegerField()
+
+    objects = PostsManager()
 
     class Meta:
         managed = False
