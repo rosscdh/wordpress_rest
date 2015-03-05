@@ -2,6 +2,9 @@
 from __future__ import unicode_literals
 from django.db import models
 
+import phpserialize
+from collections import OrderedDict
+
 
 class CommentsMeta(models.Model):
     id = models.AutoField(db_column='meta_id', primary_key=True)
@@ -76,6 +79,10 @@ class PostMeta(models.Model):
     class Meta:
         managed = False
         db_table = 'wp_postmeta'
+
+    @property
+    def value(self):
+        return phpserialize.dumps(self.meta_value)
 
 
 #

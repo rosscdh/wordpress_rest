@@ -1,9 +1,36 @@
 # -*- coding: utf-8 -*-
 from django.template.defaultfilters import slugify
+from django.utils.encoding import smart_text
 
 from rest_framework import serializers
 
 import wordpress_rest.apps.wordpress.models as wp_models
+import phpserialize
+import json
+import ast
+
+
+def _decode_php_serialized_value(value):
+    """
+    Nasty method to decode data that should REALLY be json not goddamned php serialize
+    """
+    for i in range(0,5):
+        try:
+            value = phpserialize.loads(value)
+        except ValueError as e:
+            break
+        except:
+            value = 'Unable to deserialize from php'
+    try:
+        value = ast.literal_eval(value)
+    except:
+        # probably a string
+        pass
+    if type(value) in [dict]:
+        # handle unicode values
+        value = json.dumps(value)  # convert to json string
+        value = json.loads(smart_text(value))  # convert back
+    return value
 
 
 class CommentMetaSerializer(serializers.ModelSerializer):
@@ -38,7 +65,7 @@ class PostMetaSerializer(serializers.ModelSerializer):
         return obj.meta_key
 
     def get_value(self, obj):
-        return 'test'
+        return _decode_php_serialized_value(obj.value)
 
 
 class PostsSerializer(serializers.ModelSerializer):
@@ -50,18 +77,21 @@ class PostsSerializer(serializers.ModelSerializer):
 
     def get_meta(self, obj):
         meta = dict()
-        for m in obj.postmeta_set.all():
+        for m in obj.postmeta_set.all().iterator():
             m = PostMetaSerializer(m).data
 
-            if m.get('name') in meta:
-                if type(meta[m.get('name')]) is not list:
-                    tmp_value = meta[m.get('name')]
-                    meta[m.get('name')] = [tmp_value]
+            name = smart_text(m.get('name'))
+            value = m.get('value')
+
+            if name in meta:
+                if type(meta[name]) is not list:
+                    tmp_value = meta[name]
+                    meta[name] = [tmp_value]
                 else:
-                    meta[m.get('name')].append(m.get('value'))
+                    meta[name].append(value)
 
             else:
-                meta[m.get('name')] = m.get('value')
+                meta[name] = value
         return meta
 
 
@@ -96,23 +126,24 @@ class CategoriesSerializer(TermsSerializer):
     def create(self, validated_data):
         parent = self.data.get('parent', 0)
         taxonomy = self.data.get('taxonomy', 'category')
-        import pdb;pdb.set_trace()
+
         validated_data['slug'] = slugify(validated_data.get('name'))
 
         term = self.Meta.model.objects.create(**validated_data)
 
         try:
             parent = wp_models.TermTaxonomy.objects.get(term=term, taxonomy=taxonomy)
+
         except wp_models.TermTaxonomy.DoesNotExist:
             parent = wp_models.TermTaxonomy.objects.create(term=term, taxonomy=taxonomy)
+
         except Exception as e:
-            import pdb;pdb.set_trace()
+            pass
 
         return term
 
 
 class TagsSerializer(CategoriesSerializer):
-    class Meta(CategoriesSerializer.Meta): pass
 
     def get_taxonomy(self, obj):
         return 'tag'
