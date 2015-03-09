@@ -73,31 +73,43 @@ class PostMetaSerializer(serializers.ModelSerializer):
 
 
 class PostsSerializer(serializers.ModelSerializer):
-    meta = serializers.SerializerMethodField()
+    #meta = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
+    sectors = serializers.SerializerMethodField()
+    categories = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
 
     class Meta:
         model = wp_models.Posts
         queryset = wp_models.Posts.objects.select_related('meta').all()
 
-    def get_meta(self, obj):
-        meta = dict()
-        for m in obj.postmeta_set.all().iterator():
-            m = PostMetaSerializer(m).data
+    def get_sectors(self, obj):
+        return TermsSerializer(obj.groups(), many=True).data
 
-            name = m.get('name')
-            value = m.get('value')
+    def get_groups(self, obj):
+        return TermsSerializer(obj.groups(), many=True).data
 
-            if name in meta:
-                if type(meta[name]) is not list:
-                    tmp_value = meta[name]
-                    meta[name] = [tmp_value]
-                else:
-                    meta[name].append(value)
+    def get_categories(self, obj):
+        return TermsSerializer(obj.groups(), many=True).data
 
-            else:
-                meta[name] = value
-        return meta
+    # def get_meta(self, obj):
+    #     meta = dict()
+    #     for m in obj.postmeta_set.filter().iterator():
+    #         m = PostMetaSerializer(m).data
+
+    #         name = m.get('name')
+    #         value = m.get('value')
+
+    #         if name in meta:
+    #             if type(meta[name]) is not list:
+    #                 tmp_value = meta[name]
+    #                 meta[name] = [tmp_value]
+    #             else:
+    #                 meta[name].append(value)
+
+    #         else:
+    #             meta[name] = value
+    #     return meta
 
     def get_images(self, obj):
         return obj.images()
