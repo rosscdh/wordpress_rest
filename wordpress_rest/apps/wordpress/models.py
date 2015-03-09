@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 import phpserialize
+from news import Article
 from collections import OrderedDict
 
 
@@ -89,23 +90,26 @@ class PostMeta(models.Model):
 # Manager
 #
 class PostsManager(models.Manager):
+    def get_queryset(self):
+        return super(PostsManager, self).get_queryset().filter(post_type__in=['post'])
+
     def private(self, **kwargs):
-        return self.get_queryset(**kwargs).filter(post_status__in=['private'])
+        return self.get_queryset().filter(post_status__in=['private'], **kwargs)
 
     def published(self, **kwargs):
-        return self.get_queryset(**kwargs).filter(post_status__in=['publish'])
+        return self.get_queryset().filter(post_status__in=['publish'], **kwargs)
 
     def draft(self, **kwargs):
-        return self.get_queryset().filter(post_status__in=['draft'])
+        return self.get_queryset().filter(post_status__in=['draft'], **kwargs)
 
     def auto_draft(self, **kwargs):
-        return self.get_queryset(**kwargs).filter(post_status__in=['auto-draft'])
+        return self.get_queryset().filter(post_status__in=['auto-draft'], **kwargs)
 
     def trash(self, **kwargs):
-        return self.get_queryset(**kwargs).filter(post_status__in=['trash'])
+        return self.get_queryset().filter(post_status__in=['trash'], **kwargs)
 
     def inherit(self, **kwargs):
-        return self.get_queryset(**kwargs).filter(post_status__in=['inherit'])
+        return self.get_queryset().filter(post_status__in=['inherit'], **kwargs)
 
 
 class Posts(models.Model):
@@ -135,9 +139,23 @@ class Posts(models.Model):
 
     objects = PostsManager()
 
+    _article = None
+
     class Meta:
         managed = False
         db_table = 'wp_posts'
+
+    def __init__(self, *args, **kwargs):
+        super(Posts, self).__init__(*args, **kwargs)
+        #
+        # Parse the images from the article
+        #
+        if self.post_content:
+            self._article = Article(html=self.post_content)
+            self._article.parse()
+
+    def images(self):
+        return self._article.images if self._article else []
 
 
 class TermRelationships(models.Model):

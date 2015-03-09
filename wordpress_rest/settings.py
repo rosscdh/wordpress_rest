@@ -78,6 +78,15 @@ DATABASES = {
     }
 }
 
+DATABASE_OPTIONS = {
+    'use_unicode': True,
+    'charset': 'utf8',
+    "init_command": "SET storage_engine=INNODB",
+    # "init_command": "set names utf8",
+    # "init_command": "SET character_set_database=utf8",
+    # "init_command": "SET character_set_client=utf8"
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 

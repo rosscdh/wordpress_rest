@@ -26,10 +26,14 @@ def _decode_php_serialized_value(value):
     except:
         # probably a string
         pass
+
     if type(value) in [dict]:
         # handle unicode values
         value = json.dumps(value)  # convert to json string
         value = json.loads(smart_text(value))  # convert back
+    else:
+        value = smart_text(value)
+
     return value
 
 
@@ -62,7 +66,7 @@ class PostMetaSerializer(serializers.ModelSerializer):
         fields = ('name', 'value')
 
     def get_name(self, obj):
-        return obj.meta_key
+        return smart_text(obj.meta_key)
 
     def get_value(self, obj):
         return _decode_php_serialized_value(obj.value)
@@ -70,6 +74,7 @@ class PostMetaSerializer(serializers.ModelSerializer):
 
 class PostsSerializer(serializers.ModelSerializer):
     meta = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = wp_models.Posts
@@ -80,7 +85,7 @@ class PostsSerializer(serializers.ModelSerializer):
         for m in obj.postmeta_set.all().iterator():
             m = PostMetaSerializer(m).data
 
-            name = smart_text(m.get('name'))
+            name = m.get('name')
             value = m.get('value')
 
             if name in meta:
@@ -93,6 +98,10 @@ class PostsSerializer(serializers.ModelSerializer):
             else:
                 meta[name] = value
         return meta
+
+    def get_images(self, obj):
+        return obj.images()
+
 
 
 class TermRelationshipsSerializer(serializers.ModelSerializer):

@@ -6,8 +6,9 @@ from rest_framework import viewsets
 from rest_framework import status as http_status
 
 
-import wordpress_rest.apps.wordpress.models as wp_models
+import datetime
 import serializers as api_serializers
+import wordpress_rest.apps.wordpress.models as wp_models
 
 
 class CommentsViewset(viewsets.ModelViewSet):
@@ -38,7 +39,7 @@ class AllPostsViewset(viewsets.ModelViewSet):
 
 
 class PublishedPostsViewset(AllPostsViewset):
-    queryset = wp_models.Posts.objects.published()
+    queryset = wp_models.Posts.objects.published(post_date__lte=datetime.datetime.utcnow())
 
 
 class PrivatePostsViewset(AllPostsViewset):
