@@ -154,17 +154,17 @@ class Posts(models.Model):
             self._article = Article(html=self.post_content)
             self._article.parse()
 
+    def term_taxonomies_for(self, taxonomy):
+        return [taxonomy.term for taxonomy in TermTaxonomy.objects.select_related('term').filter(taxonomy=taxonomy, id__in=[t.get('term_taxonomy_id') for t in self.termrelationships_set.all().values('term_taxonomy_id')])]
+
     def sectors(self):
-        sector = Terms.objects.filter(slug='sector').first()
-        return self.termrelationships_set.filter(term__pk=sector_pk) if sector else []
+        return self.term_taxonomies_for(taxonomy='sectors')
 
     def groups(self):
-        group = Terms.objects.filter(slug='sector').first()
-        return self.termrelationships_set.filter(term__pk=group_pk) if group else []
+        return self.term_taxonomies_for(taxonomy='groups')
 
     def categories(self):
-        cat = Terms.objects.filter(slug='sector').first()
-        return self.termrelationships_set.filter(term__pk=cat.pk) if cat else []
+        return self.term_taxonomies_for(taxonomy='categories')
 
     def images(self):
         return self._article.images if self._article else []
@@ -172,7 +172,7 @@ class Posts(models.Model):
 
 class TermRelationships(models.Model):
     post = models.ForeignKey('wordpress.Posts', primary_key=True, db_column='object_id')
-    term_taxonomy = models.ForeignKey('wordpress.Terms', db_column='term_taxonomy_id')
+    term_taxonomy = models.ForeignKey('wordpress.TermTaxonomy', db_column='term_taxonomy_id')
     term_order = models.IntegerField()
 
     class Meta:

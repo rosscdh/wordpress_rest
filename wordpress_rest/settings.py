@@ -50,6 +50,8 @@ HELPER_APPS = (
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + HELPER_APPS
 
+ALLOWED_HOSTS = ['*']
+
 MIDDLEWARE_CLASSES = (
 #    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

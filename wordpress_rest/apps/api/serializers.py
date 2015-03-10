@@ -84,13 +84,13 @@ class PostsSerializer(serializers.ModelSerializer):
         queryset = wp_models.Posts.objects.select_related('meta').all()
 
     def get_sectors(self, obj):
-        return TermsSerializer(obj.groups(), many=True).data
+        return TermsNameSerializer(obj.sectors(), many=True).data
 
     def get_groups(self, obj):
-        return TermsSerializer(obj.groups(), many=True).data
+        return TermsNameSerializer(obj.groups(), many=True).data
 
     def get_categories(self, obj):
-        return TermsSerializer(obj.groups(), many=True).data
+        return TermsNameSerializer(obj.categories(), many=True).data
 
     # def get_meta(self, obj):
     #     meta = dict()
@@ -133,6 +133,11 @@ class TermsSerializer(serializers.ModelSerializer):
     class Meta:
         model = wp_models.Terms
         fields = ('pk', 'name', 'slug', 'parent')
+
+
+class TermsNameSerializer(TermsSerializer):
+    class Meta(TermsSerializer.Meta):
+        fields = ('name',)
 
 
 class CategoriesSerializer(TermsSerializer):
